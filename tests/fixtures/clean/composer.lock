@@ -1,0 +1,15 @@
+{
+    "_readme": ["Current, advisory-free packages for the action's clean self-test."],
+    "content-hash": "phpwarden-action-fixture-clean",
+    "packages": [
+        {
+            "name": "psr/log",
+            "version": "3.0.2"
+        },
+        {
+            "name": "psr/container",
+            "version": "2.0.2"
+        }
+    ],
+    "packages-dev": []
+}

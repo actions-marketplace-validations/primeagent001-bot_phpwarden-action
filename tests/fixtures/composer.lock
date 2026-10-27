@@ -1,0 +1,26 @@
+{
+    "_readme": [
+        "Deliberately outdated lockfile used by the action's own self-test.",
+        "Every package here has published advisories; do not 'fix' it."
+    ],
+    "content-hash": "phpwarden-action-fixture",
+    "packages": [
+        {
+            "name": "guzzlehttp/guzzle",
+            "version": "7.4.0"
+        },
+        {
+            "name": "phpmailer/phpmailer",
+            "version": "6.1.5"
+        },
+        {
+            "name": "symfony/http-kernel",
+            "version": "5.4.0"
+        },
+        {
+            "name": "monolog/monolog",
+            "version": "3.5.0"
+        }
+    ],
+    "packages-dev": []
+}

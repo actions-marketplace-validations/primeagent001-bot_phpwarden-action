@@ -1,0 +1,117 @@
+name: "phpwarden — PHP vulnerability scan"
+description: "Scan composer.lock, WordPress and the PHP engine for exploited CVEs (KEV + EPSS ranked). Job summary, PR annotations, SARIF."
+author: "phpwarden"
+branding:
+  icon: "shield"
+  color: "red"
+
+inputs:
+  composer-lock:
+    description: "Path to composer.lock. Empty string skips the dependency scan."
+    required: false
+    default: "composer.lock"
+  wordpress-path:
+    description: "Path to a WordPress install (core + plugins + themes). Empty skips."
+    required: false
+    default: ""
+  php-version:
+    description: "Assess a production PHP engine version (e.g. 8.3.10) against engine CVEs. Empty skips."
+    required: false
+    default: ""
+  sapi:
+    description: "SAPI for the engine assessment: fpm, cgi or cli."
+    required: false
+    default: "fpm"
+  os:
+    description: "OS for the engine assessment: linux, windows or darwin."
+    required: false
+    default: "linux"
+  fail-on:
+    description: "When to fail the job: exposed (any finding), exploited (only CISA-KEV), critical, high, medium, or never."
+    required: false
+    default: "exposed"
+  reachability:
+    description: "Check whether vulnerable Composer packages are actually referenced in your code."
+    required: false
+    default: "true"
+  sarif-file:
+    description: "Where to write the SARIF report."
+    required: false
+    default: "phpwarden.sarif"
+  upload-sarif:
+    description: "Upload the SARIF to GitHub code scanning (needs permissions: security-events: write)."
+    required: false
+    default: "false"
+  report-url:
+    description: "phpwarden dashboard ingest URL, e.g. https://app.phpwarden.io/v1/reports"
+    required: false
+    default: ""
+  report-token:
+    description: "Project ingest token from your phpwarden dashboard (store as a secret)."
+    required: false
+    default: ""
+  version:
+    description: "phpwarden CLI version spec to install (pip syntax)."
+    required: false
+    default: ">=2,<3"
+  python-version:
+    description: "Python to run the CLI with."
+    required: false
+    default: "3.12"
+
+outputs:
+  findings:
+    description: "Total number of findings."
+    value: ${{ steps.run.outputs.findings }}
+  exploited:
+    description: "Findings that are in CISA KEV (exploited in the wild)."
+    value: ${{ steps.run.outputs.exploited }}
+  worst-severity:
+    description: "critical | high | medium | low | unknown | none"
+    value: ${{ steps.run.outputs.worst-severity }}
+  sarif-file:
+    description: "Path of the SARIF report that was written."
+    value: ${{ steps.run.outputs.sarif-file }}
+  failed:
+    description: "true when the fail-on policy was triggered."
+    value: ${{ steps.run.outputs.failed }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        update-environment: false
+      id: py
+
+    - name: Install phpwarden
+      shell: bash
+      run: |
+        "${{ steps.py.outputs.python-path }}" -m venv "$RUNNER_TEMP/phpwarden-venv"
+        "$RUNNER_TEMP/phpwarden-venv/bin/pip" install --quiet --disable-pip-version-check "phpwarden${{ inputs.version }}"
+        echo "$RUNNER_TEMP/phpwarden-venv/bin" >> "$GITHUB_PATH"
+
+    - name: Scan
+      id: run
+      shell: bash
+      env:
+        INPUT_COMPOSER_LOCK: ${{ inputs.composer-lock }}
+        INPUT_WORDPRESS_PATH: ${{ inputs.wordpress-path }}
+        INPUT_PHP_VERSION: ${{ inputs.php-version }}
+        INPUT_SAPI: ${{ inputs.sapi }}
+        INPUT_OS: ${{ inputs.os }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_REACHABILITY: ${{ inputs.reachability }}
+        INPUT_SARIF_FILE: ${{ inputs.sarif-file }}
+        PHPWARDEN_REPORT_URL: ${{ inputs.report-url }}
+        PHPWARDEN_REPORT_TOKEN: ${{ inputs.report-token }}
+      run: |
+        "$RUNNER_TEMP/phpwarden-venv/bin/python" "${{ github.action_path }}/phpwarden_action.py"
+
+    - name: Upload SARIF to code scanning
+      if: ${{ always() && inputs.upload-sarif == 'true' && steps.run.outputs.sarif-file != '' }}
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ steps.run.outputs.sarif-file }}
+        category: phpwarden
