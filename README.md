@@ -29,7 +29,7 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: primeagent001-bot/phpwarden-action@v1
 ```
 
@@ -64,7 +64,7 @@ jobs:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: primeagent001-bot/phpwarden-action@v1
         with:
           upload-sarif: "true"
