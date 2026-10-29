@@ -1,6 +1,6 @@
 # phpwarden GitHub Action
 
-[![test](https://github.com/primeagent001-bot/phpwarden-action/actions/workflows/test.yml/badge.svg)](https://github.com/primeagent001-bot/phpwarden-action/actions/workflows/test.yml)
+[![test](https://github.com/oroma-alfred/phpwarden-action/actions/workflows/test.yml/badge.svg)](https://github.com/oroma-alfred/phpwarden-action/actions/workflows/test.yml)
 [![PyPI](https://img.shields.io/pypi/v/phpwarden?label=phpwarden)](https://pypi.org/project/phpwarden/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: primeagent001-bot/phpwarden-action@v1
+      - uses: oroma-alfred/phpwarden-action@v1
 ```
 
 That scans `composer.lock` and fails the job on any known vulnerability.
@@ -38,7 +38,7 @@ That scans `composer.lock` and fails the job on any known vulnerability.
 ### Only fail on what's actually being exploited
 
 ```yaml
-      - uses: primeagent001-bot/phpwarden-action@v1
+      - uses: oroma-alfred/phpwarden-action@v1
         with:
           fail-on: exploited      # or: critical | high | medium | exposed | never
 ```
@@ -46,7 +46,7 @@ That scans `composer.lock` and fails the job on any known vulnerability.
 ### WordPress site + production PHP version
 
 ```yaml
-      - uses: primeagent001-bot/phpwarden-action@v1
+      - uses: oroma-alfred/phpwarden-action@v1
         with:
           composer-lock: ""              # no Composer in this repo
           wordpress-path: public_html
@@ -65,7 +65,7 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v5
-      - uses: primeagent001-bot/phpwarden-action@v1
+      - uses: oroma-alfred/phpwarden-action@v1
         with:
           upload-sarif: "true"
           fail-on: never             # let code scanning gate the PR instead
@@ -74,7 +74,7 @@ jobs:
 ### Report to your phpwarden dashboard
 
 ```yaml
-      - uses: primeagent001-bot/phpwarden-action@v1
+      - uses: oroma-alfred/phpwarden-action@v1
         with:
           report-url: https://app.phpwarden.io/v1/reports
           report-token: ${{ secrets.PHPWARDEN_TOKEN }}
@@ -152,4 +152,4 @@ pin `version`.
 ## License
 
 Apache-2.0. The scanner's source lives at
-[github.com/primeagent001-bot/phpwarden](https://github.com/primeagent001-bot/phpwarden).
+[github.com/oroma-alfred/phpwarden](https://github.com/oroma-alfred/phpwarden).
